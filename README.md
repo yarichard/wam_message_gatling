@@ -1,0 +1,1 @@
+Send multiple message to wam server
