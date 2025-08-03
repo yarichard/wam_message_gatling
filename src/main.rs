@@ -1,9 +1,10 @@
 use std::env;
 use serde::{Serialize, Deserialize};
 use reqwest::{Error, Client};
-use log::{LevelFilter, info};
+use log::{LevelFilter, info, debug};
 use env_logger::Builder;
 use futures::future::join_all;
+use tokio_schedule::{every, Job};
 
 #[derive(Serialize, Deserialize)]
 struct Message {
@@ -19,13 +20,31 @@ impl std::fmt::Display for Message {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Error>{
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
 
     Builder::new()
-        .filter(None, LevelFilter::Info)
+        .filter(None, LevelFilter::Debug)
         .init();
 
+    let repeat = env::var("GATLING_MSG_SEC").expect("GATLING_MSG_SEC must be set").parse::<u32>().unwrap();
+    info!("Gatling will repeat every {} seconds", repeat);
+    let task = every(repeat).seconds().perform(gatling_execute);
+    task.await;
+     
+    // Display results
+    /*
+    let messages = get_messages().await?;
+    for message in &messages {
+        info!("Message ID: {}, Text: {}, User: {}", message.id, message.text, message.user_id);
+    }*/
+
+    Ok(())
+}
+
+async fn gatling_execute() {
+    info!("Executing Gatling task");
+    
     // Generate messages
     let messages_nb = env::var("GATLING_MSG_NB").expect("GATLING_MSG_NB must be set").parse::<i32>().unwrap();
     let mut messages: Vec<Message> = Vec::new();
@@ -52,15 +71,6 @@ async fn main() -> Result<(), Error>{
             Err(e) => eprintln!("Error: {}", e),
         }
     }
-
-    // Display results
-    /*
-    let messages = get_messages().await?;
-    for message in &messages {
-        info!("Message ID: {}, Text: {}, User: {}", message.id, message.text, message.user_id);
-    }*/
-
-    Ok(())
 }
 
 async fn get_messages() -> Result<Vec<Message>, Error> {
@@ -82,6 +92,7 @@ async fn get_messages() -> Result<Vec<Message>, Error> {
 async fn send_message(text: &str, user_id: i32) -> Result<Message, Error> {
     let server_url = env::var("WAM_SERVER_URL").expect("WAM_SERVER_URL must be set");
     let request_url = format!("{server_url}/message");
+    debug!("Sending message to {}", request_url);
 
     let message = Message {
         id: 0, // ID will be assigned by the server
