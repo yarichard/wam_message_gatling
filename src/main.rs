@@ -16,7 +16,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     let repeat = env::var("GATLING_MSG_SEC").expect("GATLING_MSG_SEC must be set").parse::<u32>().unwrap();
-    info!("Gatling will repeat every {} seconds", repeat);
+    let messages_nb = env::var("GATLING_MSG_NB").expect("GATLING_MSG_NB must be set").parse::<i32>().unwrap();
+
+    info!("Gatling will repeat {} message(s) every {} seconds", messages_nb, repeat);
     let task = every(repeat).seconds().perform(gatling_execute);
     task.await;
      
@@ -47,6 +49,8 @@ async fn gatling_execute() {
 
     // Send messages asynchronously
     let send_type = env::var("SEND_TYPE").unwrap_or_else(|_| "wam".to_string());
+    info!("Sending messages using method: {}", send_type);
+    
     if send_type == "kafka" {
         sender::kafka::send_messages_to_kafka(messages).await.unwrap();
     } else {
