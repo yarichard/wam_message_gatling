@@ -1,4 +1,4 @@
-use kafka::producer::{Producer, Record, RequiredAcks};
+/*use kafka::producer::{Producer, Record, RequiredAcks};
 use futures::future::join_all;
 use reqwest::{Error};
 use std::{env, time::Duration};
@@ -49,4 +49,4 @@ pub async fn send_to_kafka(message: &Message) -> Result<(), Error>{
     }
 
     Ok(())
-}
+}*/

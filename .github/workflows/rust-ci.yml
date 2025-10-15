@@ -18,6 +18,74 @@ jobs:
           override: true
       - name: Run tests
         run: cargo test --workspace --all-features
+  
+  build-wasm:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          override: true
+      
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      
+      - name: Build WASM package
+        run: |
+          wasm-pack build --out-dir pkg
+      
+      - name: Set package version
+        id: package_version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+          else
+            VERSION="0.1.0-${GITHUB_SHA::8}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Update package.json version
+        run: |
+          cd pkg
+          sed -i 's/"version": "[^"]*"/"version": "${{ steps.package_version.outputs.version }}"/' package.json
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@${{ github.repository_owner }}'
+      
+      - name: Configure package for GitHub Packages
+        run: |
+          cd pkg
+          # Update package name to include scope
+          sed -i 's/"name": "wam_message_gatling"/"name": "@${{ github.repository_owner }}\/wam_message_gatling"/' package.json
+          # Add publishConfig
+          npm pkg set publishConfig.registry=https://npm.pkg.github.com
+          npm pkg set repository.type=git
+          npm pkg set repository.url=git+https://github.com/${{ github.repository }}.git
+      
+      - name: Publish to GitHub Packages
+        run: |
+          cd pkg
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Archive WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-package-${{ steps.package_version.outputs.version }}
+          path: pkg/
+          retention-days: 30
+
   build-push:
     needs: test
     runs-on: ubuntu-latest

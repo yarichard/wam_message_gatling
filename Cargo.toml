@@ -1,16 +1,32 @@
 [package]
 name = "wam_message_gatling"
+description = "Helper to send messaes to wamserver"
+repository = "https://github.com/yarichard/wam_message_gatling"
 version = "0.1.0"
 edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 dotenvy = "0.15.7"
 env_logger = "0.11.8"
 futures = "0.3.31"
-kafka = "0.10.0"
+#kafka = "0.10.0"
 log = "0.4.27"
 reqwest = { version = "0.12.22" , features = ["json"]}
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.142"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { version = "1.47.0", features = ["macros", "rt-multi-thread"] }
-tokio_schedule = "0.3.2"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+console_error_panic_hook = "0.1"
+web-sys = { version = "0.3", features = ["console", "Request", "RequestInit", "RequestMode", "Response", "Window", "Headers"] }
+getrandom = { version = "0.2", features = ["js"] }
+#tokio_schedule = "0.3.2"
+#openssl = { version = "0.10", features = ["vendored"] }
