@@ -1,15 +1,19 @@
-/*use kafka::producer::{Producer, Record, RequiredAcks};
+// Ignore file in WASM builds
+#[cfg(not(target_arch = "wasm32"))]
+
+use kafka::producer::{Producer, Record, RequiredAcks};
 use futures::future::join_all;
 use reqwest::{Error};
 use std::{env, time::Duration};
 use log::{info, error};
 use crate::message::Message;
 
-pub async fn send_messages_to_kafka(messages: Vec<Message>) -> Result<(), Error> {     
+#[allow(dead_code)]
+pub async fn send_messages_to_kafka(messages: Vec<Message>, topic: &String) -> Result<(), Error> {     
     let messages_sending: Vec<_> = messages
         .iter()
         .map(|msg| {
-            send_to_kafka(msg)
+            send_to_kafka(msg, topic)
         })
         .collect();
 
@@ -24,10 +28,9 @@ pub async fn send_messages_to_kafka(messages: Vec<Message>) -> Result<(), Error>
     Ok(())
 }
 
-
-pub async fn send_to_kafka(message: &Message) -> Result<(), Error>{
+#[allow(dead_code)]
+async fn send_to_kafka(message: &Message, topic: &String) -> Result<(), Error>{
     let host = env::var("KAFKA_URL").expect("KAFKA_URL must be set");
-    let topic = env::var("KAFKA_TOPIC").expect("KAFKA_TOPIC must be set");
     let mut producer = Producer::from_hosts(vec![host.to_owned()])
         .with_ack_timeout(Duration::from_secs(1))
         .with_required_acks(RequiredAcks::One)
@@ -49,4 +52,4 @@ pub async fn send_to_kafka(message: &Message) -> Result<(), Error>{
     }
 
     Ok(())
-}*/
+}
