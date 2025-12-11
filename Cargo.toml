@@ -12,7 +12,6 @@ crate-type = ["cdylib", "rlib"]
 dotenvy = "0.15.7"
 env_logger = "0.11.8"
 futures = "0.3.31"
-#kafka = "0.10.0"
 log = "0.4.27"
 reqwest = { version = "0.12.22" , features = ["json"]}
 serde = { version = "1.0.219", features = ["derive"] }
@@ -20,6 +19,9 @@ serde_json = "1.0.142"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { version = "1.47.0", features = ["macros", "rt-multi-thread"] }
+kafka = "0.10.0"
+tokio_schedule = "0.3.2"
+#openssl = { version = "0.10", features = ["vendored"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2"
@@ -28,5 +30,3 @@ js-sys = "0.3"
 console_error_panic_hook = "0.1"
 web-sys = { version = "0.3", features = ["console", "Request", "RequestInit", "RequestMode", "Response", "Window", "Headers"] }
 getrandom = { version = "0.2", features = ["js"] }
-#tokio_schedule = "0.3.2"
-#openssl = { version = "0.10", features = ["vendored"] }

@@ -3,6 +3,7 @@ use reqwest::{Error, Client};
 use log::{info, debug};
 use crate::message::Message;
 
+#[allow(dead_code)]
 pub async fn send_messages_to_wam_server(messages: Vec<Message>, server_url: &String) -> Result<(), Error> {
     let messages_sending: Vec<_> = messages
         .iter()
@@ -22,6 +23,7 @@ pub async fn send_messages_to_wam_server(messages: Vec<Message>, server_url: &St
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn send_to_wam_server(message: &Message, server_url: &String) -> Result<(), Error> {
     let request_url = format!("{server_url}/message");
     debug!("Sending message to {}", request_url);

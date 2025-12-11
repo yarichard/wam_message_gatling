@@ -5,3 +5,5 @@
 - **WAM_SERVER_URL** = server URL adress
 - **GATLING_MSG_NB** = Number of message Gatling should send at the same time
 - **GATLING_MSG_SEC** = Frequency of message sending in seconds
+
+<p> This can also be used as web assembly artifact (without Kafka management).</p>
