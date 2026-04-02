@@ -39,7 +39,7 @@ jobs:
       
       - name: Build WASM package
         run: |
-          wasm-pack build --out-dir pkg
+          wasm-pack build --target web --out-dir pkg
       
       - name: Set package version
         id: package_version
