@@ -12,15 +12,17 @@ pub struct GatlingCore {
     pub msg_sec: u32,
     pub server_url: String,
     pub kafka_topic: String,
+    pub auth_token: String,
 }
 
 impl GatlingCore {
-    pub fn new(messages_nb: i32, msg_sec: u32, server_url: String, kafka_topic: String) -> Self {
+    pub fn new(messages_nb: i32, msg_sec: u32, server_url: String, kafka_topic: String, auth_token: String) -> Self {
         Self {
             messages_nb,
             msg_sec,
             server_url,
             kafka_topic,
+            auth_token,
         }
     }
 
@@ -85,6 +87,9 @@ impl GatlingCore {
             // Set headers
             let headers = Headers::new()?;
             headers.set("Content-Type", "application/json")?;
+            if !self.auth_token.is_empty() {
+                headers.set("Authorization", &format!("Bearer {}", self.auth_token))?;
+            }
 
             // Serialize message
             let body = serde_json::to_string(&message)

@@ -24,7 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Gatling will send {} message(s) at {} msgs/sec to {} / Kafka topic {}", messages_nb, repeat, server_url, kafka_topic);
     
     // Create the shared core and execute
-    let core = GatlingCore::new(messages_nb, repeat, server_url, kafka_topic);
+    let core = GatlingCore::new(messages_nb, repeat, server_url, kafka_topic, "".to_string());
     
     // Execute using the shared logic
     let result = core.execute_standard().await?;
