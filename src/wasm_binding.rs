@@ -18,9 +18,9 @@ pub struct GatlingConfig {
 #[wasm_bindgen]
 impl GatlingConfig {
     #[wasm_bindgen(constructor)]
-    pub fn new(messages_nb: i32, msg_sec: u32, server_url: String) -> Self {
+    pub fn new(messages_nb: i32, msg_sec: u32, server_url: String, auth_token: String) -> Self {
         Self {
-            core: GatlingCore::new(messages_nb, msg_sec, server_url, "".to_string()),
+            core: GatlingCore::new(messages_nb, msg_sec, server_url, "".to_string(), auth_token),
         }
     }
 
@@ -47,7 +47,7 @@ impl GatlingConfig {
 
 // Standalone function that can be called from JavaScript
 #[wasm_bindgen]
-pub async fn gatling_execute_standalone(messages_nb: i32, msg_sec: u32, server_url: String) -> Result<String, wasm_bindgen::JsValue> {
-    let core = GatlingCore::new(messages_nb, msg_sec, server_url, "".to_string());
+pub async fn gatling_execute_standalone(messages_nb: i32, msg_sec: u32, server_url: String, auth_token: String) -> Result<String, wasm_bindgen::JsValue> {
+    let core = GatlingCore::new(messages_nb, msg_sec, server_url, "".to_string(), auth_token);
     core.execute_wasm().await
 }
